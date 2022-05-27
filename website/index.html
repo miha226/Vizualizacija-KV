@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    path {
+      stroke: white;
+      stroke-width: 0.25px;
+      fill: grey;
+    }
+    </style>
+<body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script src="https://unpkg.com/d3-array@1"></script>
+    <script src="https://unpkg.com/d3-collection@1"></script>
+    <script src="https://unpkg.com/d3-path@1"></script>
+    <script src="https://unpkg.com/d3-shape@1"></script>
+    <script src="https://unpkg.com/d3-sankey@0"></script>
+<script>
+var width = 960,
+    height = 500;
+
+var projection = d3.geoMercator()
+    .center([0, 5 ])
+    .scale(150)
+    .rotate([-180,0]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var path = d3.geoPath()
+    .projection(projection);
+
+var g = svg.append("g");
+
+// load and display the World
+d3.json("world.json").then(function(topology) {
+
+    g.selectAll("path")
+       .data(topojson.feature(topology, topology.objects.countries).features)
+       .enter().append("path")
+       .attr("d", path);
+
+});
+
+</script>
+
+<!--<script>
+ 
+var sankey = d3.sankey();
+ 
+</script> -->
+</body>
+</html>
