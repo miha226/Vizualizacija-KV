@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    path {
+        stroke: white;
+        stroke-width: 0.25px;
+        fill: grey;
+    }
+
+    .tooltip {
+        position: absolute;
+        padding: 4px;
+        font: 12px sans-serif;
+        background: white;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+
+    path.country {
+        stroke: black;
+        stroke-width: 0.25px;
+    }
+
+    #map {
+        background-color: #97d5fc;
+        flex: 0.75;
+    }
+</style>
+
+<body>
+    <div id="map">
+        <svg id="mapSvg" viewBox="0 0 1000 1000" width="45%" height="100%"></svg>
+    </div>
+    <!--<div id="sidebar">
+
+
+        <canvas id="historyChart" width="100%" height="auto"></canvas>
+
+    </div>-->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script type="module">
+
+
+
+        async function loadData(path) {
+            var data;
+            await d3.json(path).then((loadedData) => {
+                data = loadedData;
+            });
+            return data;
+        }
+
+
+        class Map {
+
+            constructor() {
+                this.svg = d3.select("#mapSvg");
+                this.g = this.svg.append("g");
+
+                const zoom = d3.zoom()
+                    .scaleExtent([1, 20])
+                    .on('zoom', (event) => {
+                        this.g.selectAll('path')
+                            .attr('transform', event.transform);
+                    });
+                this.svg.call(zoom);
+
+
+
+                this.tooltip = d3.select("body").append("div")
+                    .attr("class", "tooltip");
+
+                const projection = d3.geoEquirectangular()
+                    .center([-142, 70])
+                    .scale(710)
+                    .rotate([-180, 0]);
+                const path = d3.geoPath()
+                    .projection(projection);
+
+
+                this.colors = d3.scaleLinear()
+                const data = topojson.feature(mapData, mapData.objects.europe);
+                this.g.selectAll("path.country")
+                    .data(data.features)
+                    .enter()
+                    .append("path")
+                    .attr("class", "country")
+                    .attr("id", (d) => { return d.id; })
+                    .attr("d", path)
+                    .on("mouseover", (e, x) => {
+                        //console.log(x);
+
+                        this.tooltip.html(
+                            "<p>" + x.properties.NAME + "</p>"
+                        )
+                            .style("left", (e.pageX + 10) + "px")
+                            .style("top", (e.pageY - 30) + "px");
+
+                        this.tooltip.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+
+
+                    })
+                    .on("mouseout", (e) => {
+                        this.tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+
+
+                    })
+                    .on("click", function (d) {
+                        d3.selectAll('path').style('fill', null);
+                        d3.select(this).style("fill", "orange")
+                    });
+
+
+            }
+        }
+
+
+        const mapData = await loadData("europe2.json");
+        const europeMap = new Map();
+
+    </script>
+</body>
+
+</html>
