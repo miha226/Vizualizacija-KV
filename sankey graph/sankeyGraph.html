@@ -68,6 +68,7 @@ function calculateLayout(){
 
 var nodeMap = {};
 sankeydata.nodes.forEach(function(x) { nodeMap[x.name] = x; });
+console.log(nodeMap);
 sankeydata.links = sankeydata.links.map(function(x) {
   return {
     source: nodeMap[x.source],
@@ -75,7 +76,7 @@ sankeydata.links = sankeydata.links.map(function(x) {
     value: x.value
   };
 });
-console.log(sankeydata);
+//console.log(sankeydata);
 return sankeydata;
 });
 }
@@ -121,7 +122,7 @@ async function drawGraph(data){
       .attr("height", function(d) { return d.y1 - d.y0; })
       .attr("width", sankey.nodeWidth())
       .style("fill", function(d) { 
-		      return d.color = color(d.name.replace(/ .*/, "")); })
+		      return d.color; })
       .style("stroke", function(d) { 
 		  return d3.rgb(d.color).darker(2); })
 	  .append("title")
