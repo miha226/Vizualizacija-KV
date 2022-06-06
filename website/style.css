@@ -1,0 +1,62 @@
+html{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    overflow: hidden;
+}
+body{
+    display: flex;
+    overflow: hidden;   
+}
+
+/*map*/
+.country {
+    stroke: white;
+    stroke-width: 0.25px;
+    fill: grey;
+}
+
+.tooltip {
+    position: absolute;
+    padding: 4px;
+    font: 12px sans-serif;
+    background: white;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+path.country {
+    stroke: black;
+    stroke-width: 0.25px;
+}
+
+#map {
+    background-color: #97d5fc;
+    flex: 0.45;
+
+}
+#sidebar{
+
+    flex: 0.55;
+}
+
+/*sankey*/
+.node rect {
+    fill-opacity: .9;
+    shape-rendering: crispEdges;
+  }
+  
+  .node text {
+    pointer-events: none;
+    text-shadow: 0 1px 0 #fff;
+  }
+  
+  .link {
+    fill: none;
+    stroke: black;
+    stroke-opacity: .2;
+  }
+  
+  .link:hover {
+    stroke-opacity: .5;
+  }

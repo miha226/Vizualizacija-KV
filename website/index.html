@@ -1,60 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<style>
-    path {
-      stroke: white;
-      stroke-width: 0.25px;
-      fill: grey;
-    }
-    </style>
-<body>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson@3"></script>
-    <script src="https://unpkg.com/d3-array@1"></script>
-    <script src="https://unpkg.com/d3-collection@1"></script>
-    <script src="https://unpkg.com/d3-path@1"></script>
-    <script src="https://unpkg.com/d3-shape@1"></script>
-    <script src="https://unpkg.com/d3-sankey@0"></script>
-<script>
-var width = 960,
-    height = 500;
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
 
-var projection = d3.geoMercator()
-    .center([0, 5 ])
-    .scale(150)
-    .rotate([-180,0]);
+<body>
+    <div id="map">
+        <svg id="mapSvg" viewBox="0 0 1000 1000"></svg>
+    </div>
+    <div id="sidebar">
+        <svg id="sidebarSvg" viewBox="0 0 1000 1000"></svg>
+        <!--<canvas id="historyChart" width="100%" height="auto"></canvas>-->
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+    </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <script type="module">
 
-var path = d3.geoPath()
-    .projection(projection);
 
-var g = svg.append("g");
 
-// load and display the World
-d3.json("world.json").then(function(topology) {
+        async function loadData(path) {
+            var data;
+            await d3.json(path).then((loadedData) => {
+                data = loadedData;
+            });
+            return data;
+        }
 
-    g.selectAll("path")
-       .data(topojson.feature(topology, topology.objects.countries).features)
-       .enter().append("path")
-       .attr("d", path);
 
-});
+        class Map {
 
-</script>
+            constructor() {
+                this.svg = d3.select("#mapSvg");
+                this.g = this.svg.append("g");
 
-<!--<script>
- 
-var sankey = d3.sankey();
- 
-</script> -->
+                const zoom = d3.zoom()
+                    .scaleExtent([1, 20])
+                    .on('zoom', (event) => {
+                        this.g.selectAll('path')
+                            .attr('transform', event.transform);
+                    });
+                this.svg.call(zoom);
+
+
+
+                this.tooltip = d3.select("body").append("div")
+                    .attr("class", "tooltip");
+
+                const projection = d3.geoEquirectangular()
+                    .center([-142, 70])
+                    .scale(710)
+                    .rotate([-180, 0]);
+                const path = d3.geoPath()
+                    .projection(projection);
+
+
+                this.colors = d3.scaleLinear()
+                const data = topojson.feature(mapData, mapData.objects.europe);
+                this.g.selectAll("path.country")
+                    .data(data.features)
+                    .enter()
+                    .append("path")
+                    .attr("class", "country")
+                    .attr("id", (d) => { return d.id; })
+                    .attr("d", path)
+                    .on("mouseover", (e, x) => {
+                        //console.log(x);
+
+                        this.tooltip.html(
+                            "<p>" + x.properties.NAME + "</p>"
+                        )
+                            .style("left", (e.pageX + 10) + "px")
+                            .style("top", (e.pageY - 30) + "px");
+
+                        this.tooltip.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+
+
+                    })
+                    .on("mouseout", (e) => {
+                        this.tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+
+
+                    })
+                    .on("click", function (d) {
+                        d3.selectAll('path').style('fill', null);
+                        d3.select(this).style("fill", "orange")
+                    });
+            }
+        }
+
+        class SankeyGraph {
+            constructor() {
+                const width = 1000, height = 700;
+                this.svg = d3.select("#sidebarSvg");
+                //  this.g = this.svg.append("g");
+
+                var formatNumber = d3.format(",.0f"), // zero decimal places
+                    format = function (d) { return formatNumber(d); },
+                    color = d3.scaleOrdinal(d3.schemeCategory10);
+
+
+
+                var sankey = d3.sankey()
+                    .nodeWidth(36)
+                    .nodePadding(20)
+                    .size([width, height]);
+
+                var path = sankey.links();
+
+                var graph = sankey(data);
+
+                var node = this.svg.append("g").selectAll(".node")
+                    .data(graph.nodes)
+                    .enter().append("g")
+                    .attr("class", "node");
+
+                // add in the links
+                var link = this.svg.append("g").selectAll(".link")
+                    .data(graph.links)
+                    .enter().append("path")
+                    .attr("class", "link")
+                    .attr("d", d3.sankeyLinkHorizontal())
+                    .attr("stroke-width", function (d) { return d.width; });
+
+                // add the link titles
+                link.append("title")
+                    .text(function (d) {
+                        return d.source.name + " → " +
+                            d.target.name + "\n" + format(d.value);
+                    });
+
+
+                // add the rectangles for the nodes
+                node.append("rect")
+                    .attr("x", function (d) { return d.x0; })
+                    .attr("y", function (d) { return d.y0; })
+                    .attr("height", function (d) { return d.y1 - d.y0; })
+                    .attr("width", sankey.nodeWidth())
+                    .style("fill", function (d) {
+                        return d.color;
+                    })
+                    .style("stroke", function (d) {
+                        return d3.rgb(d.color).darker(2);
+                    })
+                    .append("title")
+                    .text(function (d) {
+                        return d.name + "\n" + format(d.value);
+                    });
+
+                // add in the title for the nodes
+                node.append("text")
+                    .attr("x", function (d) { return d.x0 - 6; })
+                    .attr("y", function (d) { return (d.y1 + d.y0) / 2; })
+                    .attr("dy", "0.35em")
+                    .attr("text-anchor", "end")
+                    .text(function (d) { return d.name; })
+                    .filter(function (d) { return d.x0 < width / 2; })
+                    .attr("x", function (d) { return d.x1 + 6; })
+                    .attr("text-anchor", "start");
+            }
+        }
+
+
+        function calculateLayout() {
+
+            return d3.json("sankey.json").then(function (sankeydata) {
+
+                var nodeMap = {};
+                sankeydata.nodes.forEach(function (x) { nodeMap[x.name] = x; });
+                console.log(nodeMap);
+                sankeydata.links = sankeydata.links.map(function (x) {
+                    return {
+                        source: nodeMap[x.source],
+                        target: nodeMap[x.target],
+                        value: x.value
+                    };
+                });
+                //console.log(sankeydata);
+                return sankeydata;
+            });
+        }
+
+
+
+
+        const mapData = await loadData("europe2.json");
+        const sankeyLayout = await loadData("sankey.json");
+        const data = await calculateLayout(sankeyLayout);
+
+        const europeMap = new Map();
+        const sankeyGraph = new SankeyGraph();
+
+    </script>
 </body>
+
 </html>

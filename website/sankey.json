@@ -1,17 +1,36 @@
 {
     "nodes":[
-    {"node":0,"name":"node0"},
-    {"node":1,"name":"node1"},
-    {"node":2,"name":"node2"},
-    {"node":3,"name":"node3"},
-    {"node":4,"name":"node4"}
+    {"name":"Coal", "color":"brown"},
+    {"name":"Gas", "color":"grey"},
+    {"name":"Oil", "color":"black"},
+    {"name":"Hydropower", "color":"lightblue"},
+    {"name":"Wind", "color":"yellow"},
+    {"name":"Solar", "color":"yellow"},
+    {"name":"Nuclear", "color":"yellow"},
+    {"name":"Other", "color":"yellow"},
+    {"name":"Electricity grid", "color":"blue"},
+    {"name":"Industry", "color":"yellow"},
+    {"name":"Residental", "color":"yellow"},
+    {"name":"Comercial And Public Services", "color":"yellow"},
+    {"name":"Transport", "color":"yellow"},
+    {"name":"Agriculture", "color":"yellow"},
+    {"name":"Imports", "color":"yellow"},
+    {"name":"Exports", "color":"yellow"}
     ],
     "links":[
-    {"source":0,"target":2,"value":2},
-    {"source":1,"target":2,"value":2},
-    {"source":1,"target":3,"value":2},
-    {"source":0,"target":4,"value":2},
-    {"source":2,"target":3,"value":2},
-    {"source":2,"target":4,"value":2},
-    {"source":3,"target":4,"value":4}
+    {"source":"Imports","target":"Electricity grid","value":2},
+    {"source":"Coal","target":"Electricity grid","value":2},
+    {"source":"Gas","target":"Electricity grid","value":2},
+    {"source":"Oil","target":"Electricity grid","value":2},
+    {"source":"Hydropower","target":"Electricity grid","value":2},
+    {"source":"Wind","target":"Electricity grid","value":2},
+    {"source":"Solar","target":"Electricity grid","value":2},
+    {"source":"Nuclear","target":"Electricity grid","value":0},
+    {"source":"Other","target":"Electricity grid","value":4},
+    {"source":"Electricity grid","target":"Industry","value":2},
+    {"source":"Electricity grid","target":"Residental","value":2},
+    {"source":"Electricity grid","target":"Comercial And Public Services","value":1},
+    {"source":"Electricity grid","target":"Transport","value":1},
+    {"source":"Electricity grid","target":"Agriculture","value":1},
+    {"source":"Electricity grid","target":"Exports","value":1}
     ]}
