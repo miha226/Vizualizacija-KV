@@ -1,7 +1,6 @@
 {
-   "coutryes" : [
-       {
-        "name" : "Croatia",
+   
+       "Croatia":{
         "years":
             {
                 "1990":{                
@@ -21,5 +20,4 @@
                     "Exports":0.64}
                 }
             }
-]
 }
